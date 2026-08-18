@@ -90,7 +90,7 @@ value={form.category}
 onChange={(e) => setForm({ ...form, category: e.target.value })}
 className="w-full border border-line rounded-lg px-3 py-2.5 text-sm"
 >
-{CATEGORIES].map((c) => (
+{CATEGORIES.map((c) => (
   <option key={c}>{c}</option>
                                                                    ))}
 </select>
