@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CATEGORIES } from "@/lib/constants";
 
 export default function DashboardClient({
   listings,
@@ -51,7 +52,7 @@ function Field({ label, children }) {
 
 function ListingsTab({ listings }) {
   const router = useRouter();
-  const [form, setForm] = useState({ title: "", category: "Apparel", quantity: "", condition: "", description: "" });
+  const [form, setForm] = useState({ title: "", category: "Clothing", quantity: "", condition: "", description: "" });
   const [saving, setSaving] = useState(false);
 
 async function submit(e) {
@@ -64,7 +65,7 @@ async function submit(e) {
   });
   setSaving(false);
   if (res.ok) {
-    setForm({ title: "", category: "Apparel", quantity: "", condition: "", description: "" });
+    setForm({ title: "", category: "Clothing", quantity: "", condition: "", description: "" });
     router.refresh();
   }
 }
@@ -89,7 +90,7 @@ value={form.category}
 onChange={(e) => setForm({ ...form, category: e.target.value })}
 className="w-full border border-line rounded-lg px-3 py-2.5 text-sm"
 >
-{["Apparel", "Electronics", "Homeware", "Footwear", "General"].map((c) => (
+{CATEGORIES].map((c) => (
   <option key={c}>{c}</option>
                                                                    ))}
 </select>
