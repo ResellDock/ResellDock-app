@@ -11,31 +11,53 @@ export async function POST(req) {
   const sig = req.headers.get("stripe-signature");
   const rawBody = await req.text();
 
-  let event;
+let event;
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    const supabase = createServiceSupabase();
+if (event.type === "checkout.session.completed") {
+  const session = event.data.object;
+  const supabase = createServiceSupabase();
 
+  await supabase
+  .from("payments")
+  .update({ status: "paid", stripe_payment_intent_id: session.payment_intent })
+  .eq("stripe_checkout_session_id", session.id);
+
+  if (session.metadata?.thread_id) {
+    await supabase.from("messages").insert({
+      thread_id: session.metadata.thread_id,
+      sender_id: null,
+      type: "system",
+      body: "Payment completed via Stripe. Funds sent to the business's connected Stripe account (minus the 2% Reselldock fee).",
+    });
+
+  // The sale is complete — mark the listing this thread was about as sold
+  // so it drops off the reseller feed and shows as sold in the business dashboard.
+  const { data: thread } = await supabase
+    .from("threads")
+    .select("listing_id")
+    .eq("id", session.metadata.thread_id)
+    .single();
+
+  if (thread?.listing_id) {
     await supabase
-      .from("payments")
-      .update({ status: "paid", stripe_payment_intent_id: session.payment_intent })
-      .eq("stripe_checkout_session_id", session.id);
+    .from("listings")
+    .update({ status: "sold", sold_at: new Date().toISOString() })
+    .eq("id", thread.listing_id);
 
-    if (session.metadata?.thread_id) {
-      await supabase.from("messages").insert({
-        thread_id: session.metadata.thread_id,
-        sender_id: null,
-        type: "system",
-        body: "✅ Payment completed via Stripe. Funds sent to the business's connected Stripe account (minus the 2% Reselldock fee).",
-      });
-    }
+    await supabase.from("messages").insert({
+      thread_id: session.metadata.thread_id,
+      sender_id: null,
+      type: "system",
+      body: "This listing has been marked as sold and removed from the feed.",
+    });
   }
+  }
+}
 
-  return new Response("ok", { status: 200 });
+return new Response("ok", { status: 200 });
 }
