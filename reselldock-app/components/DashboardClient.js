@@ -2,7 +2,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function DashboardClient({ listings, interestRows, partnerRows, stripeConnected, initialTab }) {
+export default function DashboardClient({
+  listings,
+  interestRows,
+  partnerRows,
+  stripeConnected,
+  initialTab,
+  businessAddress,
+  businessPhone,
+}) {
   const [tab, setTab] = useState(initialTab || "listings");
   return (
     <div>
@@ -25,8 +33,10 @@ export default function DashboardClient({ listings, interestRows, partnerRows, s
   </div>
 {tab === "listings" && <ListingsTab listings={listings} />}
 {tab === "buyers" && <BuyersTab interestRows={interestRows} partnerRows={partnerRows} />}
-{tab === "wallet" && <WalletTab stripeConnected={stripeConnected} />}
-</div>
+{tab === "wallet" && (
+  <WalletTab stripeConnected={stripeConnected} businessAddress={businessAddress} businessPhone={businessPhone} />
+  )}
+  </div>
  );
 }
 
@@ -172,11 +182,14 @@ return (
 );
 }
 
-function WalletTab({ stripeConnected }) {
+function WalletTab({ stripeConnected, businessAddress, businessPhone }) {
   const [balance, setBalance] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   const [msg, setMsg] = useState("");
+  const [address, setAddress] = useState(businessAddress || "");
+  const [phone, setPhone] = useState(businessPhone || "");
+  const [savingAddress, setSavingAddress] = useState(false);
 
 useEffect(() => {
   fetch("/api/stripe/balance")
@@ -208,9 +221,51 @@ async function withdraw() {
   }
 }
 
+async function saveAddress() {
+  setSavingAddress(true);
+  const res = await fetch("/api/profile/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ address, phone }),
+  });
+  setSavingAddress(false);
+  setMsg(res.ok ? "Shipping address saved." : "Could not save address.");
+}
+
+const addressCard = (
+  <div className="bg-surface border border-line rounded-xl2 p-4.5 mb-5">
+  <h3 className="font-bold text-sm mb-1">Ship-From Address</h3>
+  <p className="text-muted text-xs mb-3">
+  This appears on the shipping documentation generated automatically once a sale completes.
+  </p>
+  <textarea
+  rows={2}
+  value={address}
+  onChange={(e) => setAddress(e.target.value)}
+  placeholder="Street, city, state, ZIP, country"
+  className="w-full border border-line rounded-lg px-3 py-2.5 text-sm mb-2.5"
+  />
+    <input
+  value={phone}
+  onChange={(e) => setPhone(e.target.value)}
+  placeholder="Contact phone"
+  className="w-full border border-line rounded-lg px-3 py-2.5 text-sm mb-3"
+  />
+    <button
+  onClick={saveAddress}
+  disabled={savingAddress}
+  className="bg-ink text-white text-sm font-bold px-4 py-2 rounded-lg disabled:opacity-60"
+  >
+  {savingAddress ? "Saving..." : "Save Address"}
+</button>
+  </div>
+);
+
 if (!stripeConnected) {
   return (
-    <div className="bg-surface border border-line rounded-xl2 p-6 text-center">
+    <div>
+  {addressCard}
+  <div className="bg-surface border border-line rounded-xl2 p-6 text-center">
     <p className="text-sm text-muted mb-4">Connect Stripe to receive payments from resellers and access your wallet.</p>
   <button
   onClick={connectStripe}
@@ -219,13 +274,16 @@ if (!stripeConnected) {
   >
   {connecting ? "Redirecting..." : "Connect Stripe"}
   </button>
+{msg && <p className="text-sm mt-4">{msg}</p>}
   </div>
-  );
+  </div>
+ );
 }
 
 return (
   <div>
-  <div className="grid sm:grid-cols-3 gap-3.5 mb-6">
+{addressCard}
+<div className="grid sm:grid-cols-3 gap-3.5 mb-6">
   <div className="bg-ink text-white rounded-xl2 p-4.5">
   <div className="text-[#B8B8B8] text-xs font-semibold mb-1.5">Available balance</div>
 <div className="text-2xl font-extrabold">${balance ? balance.available.toFixed(2) : "—"}</div>
