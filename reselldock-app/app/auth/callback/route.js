@@ -1,44 +1,61 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase, createServiceSupabase } from "@/lib/supabaseServer";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
-    const { searchParams, origin } = new URL(request.url);
-    const code = searchParams.get("code");
+      const { searchParams, origin } = new URL(request.url);
+      const code = searchParams.get("code");
 
   if (code) {
-        const supabase = createServerSupabase();
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          const supabase = createServerSupabase();
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-      if (!error && data?.user) {
-              const user = data.user;
-              const service = createServiceSupabase();
-              const { data: existing } = await service
-                .from("profiles")
-                .select("id, role")
-                .eq("id", user.id)
-                .single();
+        if (!error && data?.user) {
+                  const user = data.user;
+                  const service = createServiceSupabase();
+                  const { data: existing } = await service
+                    .from("profiles")
+                    .select("id, role")
+                    .eq("id", user.id)
+                    .single();
 
-          let role = existing?.role;
+            const meta = user.user_metadata || {};
+                  const selectedRole = meta.role === "business" ? "business" : "reseller";
+                  let role = selectedRole;
 
-          if (!existing) {
-                    const meta = user.user_metadata || {};
-                    role = meta.role === "business" ? "business" : "reseller";
-                    const { error: insertError } = await service.from("profiles").insert({
-                                id: user.id,
-                                name: meta.name || (user.email ? user.email.split("@")[0] : "New user"),
-                                email: user.email,
-                                role,
-                    });
+            if (!existing) {
+                        const { error: insertError } = await service.from("profiles").insert({
+                                      id: user.id,
+                                      name: meta.name || (user.email ? user.email.split("@")[0] : "New user"),
+                                      email: user.email,
+                                      role,
+                        });
 
-                if (insertError) {
-                            console.error("Failed to create profile for", user.id, insertError);
-                            return NextResponse.redirect(`${origin}/?error=profile`);
-                }
-          }
+                    if (insertError) {
+                                  console.error("Failed to create profile for", user.id, insertError);
+                                  return NextResponse.redirect(`${origin}/?error=profile`);
+                    }
+            } else if (existing.role !== selectedRole) {
+                        const { error: updateError } = await service
+                          .from("profiles")
+                          .update({ role: selectedRole })
+                          .eq("id", user.id);
 
-          return NextResponse.redirect(`${origin}${role === "business" ? "/dashboard" : "/feed"}`);
-      }
+                    if (updateError) {
+                                  console.error("Failed to update role for", user.id, updateError);
+                                  role = existing.role;
+                    }
+            } else {
+                        role = existing.role;
+            }
+
+            return NextResponse.redirect(`${origin}${role === "business" ? "/dashboard" : "/feed"}`);
+        }
+
+        console.error("Auth code exchange failed:", error);
+          return NextResponse.redirect(`${origin}/?error=auth&reason=${encodeURIComponent(error?.message || "unknown")}`);
   }
 
-  return NextResponse.redirect(`${origin}/?error=auth`);
+  return NextResponse.redirect(`${origin}/?error=auth&reason=missing_code`);
 }
