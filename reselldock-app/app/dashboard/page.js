@@ -14,7 +14,7 @@ export default async function DashboardPage({ searchParams }) {
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
     if (!profile) redirect("/?error=profile");
-    if (profile.role !== "business") redirect("/feed");
+    if (profile.role !== "business") redirect("/");
 
   const { data: listings } = await supabase
       .from("listings")
