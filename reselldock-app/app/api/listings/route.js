@@ -12,7 +12,7 @@ export async function POST(req) {
   }
 
   const body = await req.json();
-  const { title, category, description, quantity, condition, tags } = body;
+  const { title, category, description, quantity, condition, tags, images } = body;
   if (!title?.trim()) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
   const { data, error } = await supabase
@@ -25,6 +25,7 @@ export async function POST(req) {
       quantity: quantity || "",
       condition: condition || "",
       tags: Array.isArray(tags) ? tags : [],
+      images: Array.isArray(images) ? images.slice(0, 6) : [],
     })
     .select()
     .single();
