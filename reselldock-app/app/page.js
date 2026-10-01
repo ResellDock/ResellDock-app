@@ -25,7 +25,7 @@ export default async function HomePage({ searchParams }) {
 
   let query = supabase
     .from("listings")
-    .select("*")
+    .select("*, interests(count)")
     .eq("status", "active")
     .order("created_at", { ascending: false });
 
@@ -153,7 +153,11 @@ export default async function HomePage({ searchParams }) {
         {listings && listings.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                interestCount={listing.interests?.[0]?.count || 0}
+              />
             ))}
           </div>
         ) : (
