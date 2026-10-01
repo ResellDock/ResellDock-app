@@ -64,6 +64,6 @@ export async function POST(request) {
           role = existing.role;
   }
 
-  const destination = role === "admin" ? "/admin" : role === "business" ? "/dashboard" : "/feed";
+  const destination = role === "admin" ? "/admin" : role === "business" ? "/dashboard" : "/";
       return NextResponse.json({ destination });
 }
