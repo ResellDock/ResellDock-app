@@ -132,7 +132,7 @@ export default function MessagesClient({ currentUserId, isBusiness, threads, pay
                             return (
                                               <div key={m.id} className="self-start bg-white border-[1.5px] border-brand rounded-xl2 p-3.5 max-w-[280px]">
                                 <div className="text-[11px] font-bold text-brand-dark uppercase tracking-wide mb-1">Price Offer</div>
-                  <div className="text-xl font-extrabold mb-2.5">${Number(m.offer_amount).toLocaleString()}</div>
+                  <div className="text-xl font-extrabold mb-2.5">£{Number(m.offer_amount).toLocaleString()}</div>
 {!isBusiness && (
                       <button
                        onClick={() => payNow(m.id)}
