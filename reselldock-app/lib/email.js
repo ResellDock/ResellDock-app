@@ -21,7 +21,7 @@ async function sendEmail({ to, subject, html }) {
 }
 
 function money(n) {
-  return `$${Number(n || 0).toFixed(2)}`;
+  return `£${Number(n || 0).toFixed(2)}`;
 }
 
 export async function sendSaleEmails(payment) {
@@ -54,4 +54,12 @@ await sendEmail({
   subject: `Purchase confirmed — #${confirmation}`,
   html: `<h2>Your purchase is confirmed</h2>${sharedHtml}`,
 });
+
+  // Admin copy of every confirmed sale, so there is an independent record on the Reselldock side.
+  const adminTo = process.env.ADMIN_NOTIFY_EMAIL || "logroves@icloud.com";
+  await sendEmail({
+    to: adminTo,
+    subject: `[Admin] Sale confirmed — #${confirmation}`,
+    html: `<h2>New sale on Reselldock</h2>${sharedHtml}`,
+  });
 }
