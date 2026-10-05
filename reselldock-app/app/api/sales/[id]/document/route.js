@@ -11,7 +11,7 @@ export async function GET(req, { params }) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!user) return NextResponse.redirect(new URL("/login", req.url));
 
 const { data: payment } = await supabase
   .from("payments")
@@ -109,7 +109,7 @@ function newPage() {
   p.y -= 10;
     p.rule();
 
-  p.label("Ship To (Reseller)");
+  p.label("Ship To (Buyer)");
     p.text(payment.shipping_name || payment.reseller?.name || "—", { size: 12, f: bold });
     const shipLines = [
       payment.shipping_address_line1,
@@ -120,7 +120,7 @@ function newPage() {
     if (shipLines.length) {
       shipLines.forEach((line) => p.text(line, { size: 10.5, color: MUTED }));
     } else {
-      p.text("No shipping address on file — contact the reseller via Reselldock Messages.", {
+      p.text("No shipping address on file — contact the buyer via Reselldock Messages.", {
         size: 10.5,
         color: MUTED,
       });
@@ -142,7 +142,7 @@ function newPage() {
     p.page.drawLine({ start: { x: 56, y: p.y + 20 }, end: { x: 260, y: p.y + 20 }, thickness: 1, color: LINE });
     p.page.drawText("Shipped by (business)", { x: 56, y: p.y + 4, size: 8, font, color: MUTED });
     p.page.drawLine({ start: { x: 320, y: p.y + 20 }, end: { x: 524, y: p.y + 20 }, thickness: 1, color: LINE });
-    p.page.drawText("Received by (reseller)", { x: 320, y: p.y + 4, size: 8, font, color: MUTED });
+    p.page.drawText("Received by (buyer)", { x: 320, y: p.y + 4, size: 8, font, color: MUTED });
 
   p.page.drawText("Generated automatically by Reselldock — reselldock.com", {
     x: 56,
@@ -175,7 +175,7 @@ function newPage() {
     if (payment.business?.email) p.text(payment.business.email, { size: 10.5, color: MUTED });
 
   p.y -= 6;
-    p.label("Reseller (Buyer)");
+    p.label("Buyer");
     p.text(payment.reseller?.name || "—", { size: 12, f: bold });
     if (payment.reseller?.email) p.text(payment.reseller.email, { size: 10.5, color: MUTED });
 
@@ -189,9 +189,9 @@ function newPage() {
     p.rule();
 
   p.label("Payment Summary");
-    p.text(`Sale amount:          $${Number(payment.amount).toFixed(2)}`, { size: 11 });
-    p.text(`Reselldock fee (2%):  $${Number(payment.fee_amount).toFixed(2)}`, { size: 11, color: MUTED });
-    p.text(`Net to business:      $${Number(payment.net_amount).toFixed(2)}`, { size: 11 });
+    p.text(`Sale amount:          £${Number(payment.amount).toFixed(2)}`, { size: 11 });
+    p.text(`Reselldock fee (2%):  £${Number(payment.fee_amount).toFixed(2)}`, { size: 11, color: MUTED });
+    p.text(`Net to business:      £${Number(payment.net_amount).toFixed(2)}`, { size: 11 });
     p.text("Payment status: PAID via Stripe", { size: 11, f: bold, color: BRAND });
 
   p.y -= 20;
