@@ -1,4 +1,4 @@
-// Sends the two "sale confirmed" emails (business + reseller) once a Stripe
+// Sends the two "sale confirmed" emails (business + buyer) once a Stripe
 // checkout session completes. Uses the Resend REST API directly via fetch so
 // this file needs no extra npm dependency.
 const RESEND_API_URL = "https://api.resend.com/emails";
@@ -34,7 +34,7 @@ export async function sendSaleEmails(payment) {
 const sharedHtml = `
 <p><strong>Confirmation #${confirmation}</strong></p>
 <p>Amount: ${money(payment.amount)} &middot; Reselldock fee: ${money(payment.fee_amount)} &middot; Net to business: ${money(payment.net_amount)}</p>
-<p>Business: ${payment.business?.name || "—"} &nbsp;|&nbsp; Reseller: ${payment.reseller?.name || "—"}</p>
+<p>Business: ${payment.business?.name || "—"} &nbsp;|&nbsp; Buyer: ${payment.reseller?.name || "—"}</p>
 <p>
 <a href="${docUrl}">Download shipping documentation + receipt (PDF)</a><br/>
 <a href="${messagesUrl}">View this conversation</a><br/>
