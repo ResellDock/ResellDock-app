@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
+import AdminAnalytics from "@/components/AdminAnalytics";
 import { createServerSupabase, createServiceSupabase } from "@/lib/supabaseServer";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }) {
     const supabase = createServerSupabase();
     const {
           data: { user },
@@ -72,6 +73,8 @@ export default async function AdminPage() {
         <Stat label="Conversations" value={(threads || []).length} />
         <Stat label="Payments" value={(payments || []).length} />
   </div>
+
+      <AdminAnalytics range={searchParams?.range} />
 
       <Section title="Businesses">
           <table className="w-full text-sm">
