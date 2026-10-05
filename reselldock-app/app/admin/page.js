@@ -56,7 +56,7 @@ export default async function AdminPage({ searchParams }) {
             <div>
               <h1 className="text-2xl font-extrabold tracking-tight">Admin Overview</h1>
             <p className="text-muted text-sm">
-                Signed in as {me?.name || user.email} — full oversight of businesses, resellers, listings, and conversations.
+                Signed in as {me?.name || user.email} — full oversight of businesses, buyers, listings, and conversations.
     </p>
     </div>
           <form action="/auth/signout" method="post">
@@ -68,7 +68,7 @@ export default async function AdminPage({ searchParams }) {
 
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
             <Stat label="Businesses" value={businesses.length} />
-        <Stat label="Resellers" value={resellers.length} />
+        <Stat label="Buyers" value={resellers.length} />
         <Stat label="Listings" value={(listings || []).length} />
         <Stat label="Conversations" value={(threads || []).length} />
         <Stat label="Payments" value={(payments || []).length} />
@@ -108,7 +108,7 @@ export default async function AdminPage({ searchParams }) {
   </table>
   </Section>
 
-      <Section title="Resellers">
+      <Section title="Buyers">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-muted border-b border-line">
@@ -128,7 +128,7 @@ export default async function AdminPage({ searchParams }) {
 {resellers.length === 0 && (
                 <tr>
                   <td className="py-2 text-muted" colSpan={3}>
-                    No resellers yet.
+                    No buyers yet.
   </td>
   </tr>
              )}
@@ -168,7 +168,7 @@ export default async function AdminPage({ searchParams }) {
   </table>
   </Section>
 
-      <Section title="Conversations (business to reseller messages)">
+      <Section title="Conversations (business to buyer messages)">
           <div className="space-y-5">
 {(threads || []).map((t) => {
               const msgs = messagesByThread.get(t.id) || [];
@@ -191,7 +191,7 @@ export default async function AdminPage({ searchParams }) {
                                          <div key={m.id} className="text-sm">
                                            <span className="font-semibold">{nameFor(m.sender_id)}:</span>{" "}
                  {m.type === "offer" ? (
-                                             <span>Offer — ${m.offer_amount}</span>
+                                             <span>Offer — £{m.offer_amount}</span>
                                           ) : (
                                                                       <span>{m.body}</span>
                                           )}
@@ -212,7 +212,7 @@ export default async function AdminPage({ searchParams }) {
             <thead>
               <tr className="text-left text-muted border-b border-line">
                 <th className="py-2 pr-3">Business</th>
-               <th className="py-2 pr-3">Reseller</th>
+               <th className="py-2 pr-3">Buyer</th>
                <th className="py-2 pr-3">Amount</th>
                <th className="py-2 pr-3">Status</th>
                <th className="py-2 pr-3">Date</th>
@@ -223,7 +223,7 @@ export default async function AdminPage({ searchParams }) {
                 <tr key={p.id} className="border-b border-line">
                   <td className="py-2 pr-3">{nameFor(p.business_id)}</td>
                 <td className="py-2 pr-3">{nameFor(p.reseller_id)}</td>
-                <td className="py-2 pr-3">${p.amount}</td>
+                <td className="py-2 pr-3">£{p.amount}</td>
                 <td className="py-2 pr-3">{p.status}</td>
                 <td className="py-2 pr-3">{fmt(p.created_at)}</td>
   </tr>
