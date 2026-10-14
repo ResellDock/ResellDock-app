@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+
+function hasConsent() {
+  try {
+    return localStorage.getItem("rd_consent") === "accepted";
+  } catch {
+    return false;
+  }
+}
 
 function getVisitorId() {
   try {
@@ -38,9 +46,23 @@ function send(payload) {
 export default function Tracker() {
   const pathname = usePathname();
   const first = useRef(true);
+  const [consent, setConsent] = useState(false);
+
+  // Only track after the visitor has accepted; react if they change their choice
+  useEffect(() => {
+    setConsent(hasConsent());
+    const update = () => setConsent(hasConsent());
+    window.addEventListener("rd-consent-change", update);
+    window.addEventListener("storage", update);
+    return () => {
+      window.removeEventListener("rd-consent-change", update);
+      window.removeEventListener("storage", update);
+    };
+  }, []);
 
   // One page view per route change
   useEffect(() => {
+    if (!consent) return;
     const vid = getVisitorId();
     if (!vid) return;
     let utm = null;
@@ -55,10 +77,11 @@ export default function Tracker() {
       utm_source: first.current ? utm : null,
     });
     first.current = false;
-  }, [pathname]);
+  }, [pathname, consent]);
 
   // Heartbeat so the admin page can show who is on the site right now
   useEffect(() => {
+    if (!consent) return;
     const vid = getVisitorId();
     if (!vid) return;
     const id = setInterval(() => {
@@ -67,7 +90,7 @@ export default function Tracker() {
       }
     }, 30000);
     return () => clearInterval(id);
-  }, []);
+  }, [consent]);
 
   return null;
 }
