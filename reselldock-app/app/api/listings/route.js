@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabaseServer";
+import { findRestrictedGoods } from "@/lib/restrictedGoods";
 
 export async function POST(req) {
   const supabase = createServerSupabase();
@@ -14,6 +15,10 @@ export async function POST(req) {
   const body = await req.json();
   const { title, category, description, quantity, condition, tags, images } = body;
   if (!title?.trim()) return NextResponse.json({ error: "Title is required" }, { status: 400 });
+const restricted = findRestrictedGoods({ title, description, category, tags });
+if (restricted.length > 0) {
+return NextResponse.json({ error: "This listing looks like it contains restricted goods (" + restricted.join(", ") + "). Alcohol, tobacco, vapes, knives, medicines and age-restricted items cannot be listed on Reselldock." }, { status: 400 });
+}
 
   const { data, error } = await supabase
     .from("listings")
