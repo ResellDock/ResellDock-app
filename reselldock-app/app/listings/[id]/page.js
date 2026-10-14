@@ -3,6 +3,7 @@ import { createServerSupabase } from "@/lib/supabaseServer";
 import Header from "@/components/Header";
 import ListingActions from "@/components/ListingActions";
 import ListingGallery from "@/components/ListingGallery";
+import ReportListing from "@/components/ReportListing";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +86,7 @@ export default async function ListingDetailPage({ params }) {
               )}
               <h2 className="text-xl font-extrabold mb-2">{listing.title}</h2>
               <p className="text-muted text-sm leading-relaxed">{listing.description}</p>
+<ReportListing listingId={listing.id} />
               <div className="flex gap-1.5 flex-wrap mt-3.5">
               {(listing.tags || []).map((t) => (
                                     <span key={t} className="text-[11.5px] bg-[#F1F0EC] text-muted px-2.5 py-1 rounded-md font-semibold">
