@@ -75,6 +75,7 @@ export default async function AdminPage({ searchParams }) {
   </div>
 
       <AdminAnalytics range={searchParams?.range} />
+<p className="mb-6 text-sm"><a href="/admin/reports" className="underline text-brand-dark">Open listing reports →</a></p>
 
       <Section title="Businesses">
           <table className="w-full text-sm">
