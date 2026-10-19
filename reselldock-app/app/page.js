@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createServerSupabase } from "@/lib/supabaseServer";
+import { createServiceSupabase } from "@/lib/supabaseServer";
 import Header from "@/components/Header";
 import ListingCard from "@/components/ListingCard";
 import { CATEGORIES } from "@/lib/constants";
@@ -43,7 +44,7 @@ export default async function HomePage({ searchParams }) {
     .select("*", { count: "exact", head: true })
     .eq("status", "active");
 
-  const { count: businessCount } = await supabase
+const { count: businessCount } = await createServiceSupabase()
     .from("profiles")
     .select("*", { count: "exact", head: true })
     .eq("role", "business");
