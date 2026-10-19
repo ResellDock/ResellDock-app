@@ -41,6 +41,7 @@ const SECTIONS = [
     title: "6. Transactions, payments and fees",
     body: [
       "Any agreement to buy or sell stock is made between the seller and the buyer. Payments made through the platform are processed by Stripe and are also subject to Stripe's terms. Reselldock charges a 2% fee on each completed sale made through the platform. Listing is free.",
+      "To protect buyers, sellers can withdraw the proceeds of an order once the buyer has confirmed delivery, or seven days after the seller marks the order as shipped, provided no problem has been reported. If a buyer reports a problem, the proceeds stay held while we help the parties resolve it.",
       "Sellers are responsible for dispatching goods as described, and buyers are responsible for paying for them. Reselldock is not responsible for delivery, quality or any dispute arising from a transaction, whether it takes place through the platform or off it.",
     ],
   },
