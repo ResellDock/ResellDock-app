@@ -31,6 +31,7 @@ export default function Header({ profile, msgBadge }) {
                         ✉️
 {msgBadge ? <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-warn border-2 border-bg" /> : null}
 </Link>
+<Link href="/orders" className="px-2 py-1 rounded-lg hover:bg-[#EDEBE5] text-sm font-semibold" title="Your orders">Orders</Link>
             <Link href="/profile" className="flex items-center gap-2 text-sm font-semibold hover:opacity-80" title="Your profile">
                 <div className="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">
 {profile?.name?.[0]?.toUpperCase() || "U"}
