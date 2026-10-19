@@ -105,6 +105,7 @@ function ListingsTab({ listings }) {
   const [form, setForm] = useState({ title: "", category: "Clothing", quantity: "", condition: "", description: "" });
   const [photos, setPhotos] = useState([]); // [{ file, preview }]
   const [saving, setSaving] = useState(false);
+const [confirmed, setConfirmed] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
@@ -172,6 +173,7 @@ function ListingsTab({ listings }) {
     e.preventDefault();
     setError("");
     setSaving(true);
+if (!confirmed) { setError("Please confirm you have the right to sell these goods."); setSaving(false); return; }
     try {
       const images = await uploadPhotos();
       const res = await fetch("/api/listings", {
@@ -324,6 +326,7 @@ function ListingsTab({ listings }) {
         <form onSubmit={submit} className="bg-surface border border-line rounded-xl2 p-5 mb-5">
           <h3 className="font-bold mb-3.5">Post New Stock</h3>
           {error && <p className="text-red-600 text-xs mb-3">{error}</p>}
+<label className="flex items-start gap-2 mb-3 text-[12.5px] text-muted leading-relaxed"><input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5" /><span>I confirm I own these goods or have the right to sell them, that they are genuine and comply with UK law, and that this listing does not include alcohol, tobacco, vapes, knives, medicines or other age-restricted items. See the Terms of Service.</span></label>
           <div className="grid sm:grid-cols-2 gap-3.5 mb-1">
             <Field label="Title">
               <input
