@@ -13,8 +13,10 @@ export default function GateForm({ initialRole = "reseller" }) {
           const [code, setCode] = useState("");
           const [error, setError] = useState("");
           const [loading, setLoading] = useState(false);
+const [agreed, setAgreed] = useState(false);
 
   async function handleSubmit(e) {
+if (!agreed) { e.preventDefault(); setError("Please accept the Terms of Service and Privacy Policy to continue."); return; }
               e.preventDefault();
               setError("");
               if (!name.trim() || !email.trim() || !email.includes("@")) {
@@ -208,6 +210,7 @@ export default function GateForm({ initialRole = "reseller" }) {
           className="w-full mb-4 px-3 py-2.5 rounded-lg border border-line text-sm focus:outline-none focus:border-brand"
         />
 
+<label className="flex items-start gap-2 mb-4 text-[12px] text-muted leading-relaxed"><input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5" /><span>I confirm I am acting for a business and I agree to the <Link href="/terms" target="_blank" className="underline">Terms of Service</Link> and <Link href="/privacy" target="_blank" className="underline">Privacy Policy</Link>.</span></label>
           {error && <p className="text-red-600 text-xs mb-3">{error}</p>}
 
         <button
